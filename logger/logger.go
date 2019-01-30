@@ -2,12 +2,9 @@ package logger
 
 import (
 	"fmt"
-	"os"
-	//"github.com/json-iterator/go"
-	"bytes"
 	"github.com/beaquant/utils/wx"
 	"github.com/sirupsen/logrus"
-	"runtime"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -88,13 +85,13 @@ func (hook *LogrusFileHook) Fire(entry *logrus.Entry) error {
 	case logrus.FatalLevel:
 		fallthrough
 	case logrus.ErrorLevel:
-		s = fmt.Sprintf("%s [ERROR] %s\n", now, message)
+		s = fmt.Sprintf("[ERROR] [%s] %s\n", now, message)
 	case logrus.WarnLevel:
-		s = fmt.Sprintf("%s [WARN] %s\n", now, message)
+		s = fmt.Sprintf("[WARN] [%s] %s\n", now, message)
 	case logrus.InfoLevel:
-		s = fmt.Sprintf("%s [INFO] %s\n", now, message)
+		s = fmt.Sprintf("[INFO] [%s] %s\n", now, message)
 	case logrus.DebugLevel:
-		s = fmt.Sprintf("%s [DEBUG] %s\n", now, message)
+		s = fmt.Sprintf("[DEBUG] [%s] %s\n", now, message)
 	default:
 		return nil
 	}
