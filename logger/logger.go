@@ -85,13 +85,13 @@ func (hook *LogrusFileHook) Fire(entry *logrus.Entry) error {
 	case logrus.FatalLevel:
 		fallthrough
 	case logrus.ErrorLevel:
-		s = fmt.Sprintf("[ERROR] [%s] %s\n", now, message)
+		s = fmt.Sprintf("[ERROR] [%s] %s", now, message)
 	case logrus.WarnLevel:
-		s = fmt.Sprintf("[WARN] [%s] %s\n", now, message)
+		s = fmt.Sprintf("[WARN] [%s] %s", now, message)
 	case logrus.InfoLevel:
-		s = fmt.Sprintf("[INFO] [%s] %s\n", now, message)
+		s = fmt.Sprintf("[INFO] [%s] %s", now, message)
 	case logrus.DebugLevel:
-		s = fmt.Sprintf("[DEBUG] [%s] %s\n", now, message)
+		s = fmt.Sprintf("[DEBUG] [%s] %s", now, message)
 	default:
 		return nil
 	}
