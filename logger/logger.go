@@ -4,12 +4,24 @@ import (
 	"fmt"
 	"os"
 	//"github.com/json-iterator/go"
+	"bytes"
 	"github.com/beaquant/utils/wx"
 	"github.com/sirupsen/logrus"
+	"runtime"
+	"strings"
+	"sync"
+	"time"
+)
+
+const (
+	SimpleDateTimeFormat = "2006-01-02 15:04:05"
+	SimpleDateFormat     = "2006-01-02"
 )
 
 var (
-	log *logrus.Logger
+	log             *logrus.Logger
+	fileHooksLocker = sync.Mutex{}
+
 	//json   = jsoniter.ConfigCompatibleWithStandardLibrary
 )
 
@@ -30,7 +42,7 @@ func NewLogger() *logrus.Logger {
 	if log == nil {
 		log = &logrus.Logger{
 			Out:       os.Stdout,
-			Formatter: &logrus.TextFormatter{ForceColors: true, TimestampFormat: "2006-01-02 15:04:05", FullTimestamp: true},
+			Formatter: &logrus.TextFormatter{ForceColors: true, TimestampFormat: SimpleDateTimeFormat, FullTimestamp: true},
 			Hooks:     make(logrus.LevelHooks),
 			// Minimum level to log at (5 is most verbose (debug), 0 is panic)
 			Level: logrus.DebugLevel,
@@ -58,10 +70,36 @@ type LogrusFileHook struct {
 
 // Fire event
 func (hook *LogrusFileHook) Fire(entry *logrus.Entry) error {
+	fileHooksLocker.Lock()
+	defer fileHooksLocker.Unlock()
+	message := ""
+	message = message + fmt.Sprintf("%s\n", entry.Message)
+	for k, v := range entry.Data {
+		if !strings.HasPrefix(k, "err_") {
+			message = message + fmt.Sprintf("%v:%v\n", k, v)
+		}
+	}
 
-	plainformat, err := hook.formatter.Format(entry)
-	line := string(plainformat)
-	_, err = hook.file.WriteString(line)
+	now := time.Now().Format(hook.formatter.TimestampFormat)
+	s := ""
+	switch entry.Level {
+	case logrus.PanicLevel:
+		fallthrough
+	case logrus.FatalLevel:
+		fallthrough
+	case logrus.ErrorLevel:
+		s = fmt.Sprintf("%s [ERROR] %s\n", now, message)
+	case logrus.WarnLevel:
+		s = fmt.Sprintf("%s [WARN] %s\n", now, message)
+	case logrus.InfoLevel:
+		s = fmt.Sprintf("%s [INFO] %s\n", now, message)
+	case logrus.DebugLevel:
+		s = fmt.Sprintf("%s [DEBUG] %s\n", now, message)
+	default:
+		return nil
+	}
+
+	_, err := hook.file.WriteString(s)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "unable to write file on filehook(entry.String)%v", err)
 		return err
@@ -90,7 +128,11 @@ func LevelThreshold(l logrus.Level) []logrus.Level {
 func NewLogrusFileHook(filename string, flag int, chmod os.FileMode, l logrus.Level) (*LogrusFileHook, error) {
 	var f *os.File
 	var err1 error
-	plainFormatter := &logrus.TextFormatter{DisableColors: true}
+	plainFormatter := &logrus.TextFormatter{DisableColors: true, TimestampFormat: SimpleDateTimeFormat, FullTimestamp: true,
+		FieldMap: logrus.FieldMap{
+			logrus.FieldKeyTime:  "@timestamp",
+			logrus.FieldKeyLevel: "@level",
+			logrus.FieldKeyMsg:   "@message"}}
 	if checkFileIsExist(filename) {
 		f, err1 = os.OpenFile(filename, flag, chmod)
 	} else {
