@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	DelayDuration = time.Duration(3 * time.Second)
-	RetryCount    = -1
+	delayDuration = time.Duration(3 * time.Second)
+	retryCount    = -1
 )
 
 func Round8(x float64) float64 {
@@ -36,11 +36,11 @@ func Float64Round(x float64, prec ...int) float64 {
 }
 
 func SetRetryCount(count int) {
-	RetryCount = count
+	retryCount = count
 }
 
 func SetDelay(delay int) {
-	DelayDuration = time.Duration(time.Duration(delay) * time.Millisecond)
+	delayDuration = time.Duration(time.Duration(delay) * time.Millisecond)
 }
 func RE(method interface{}, params ...interface{}) interface{} {
 
@@ -65,9 +65,9 @@ func RE(method interface{}, params ...interface{}) interface{} {
 		for _, vl := range retValues {
 			if vl.Type().String() == "error" {
 				if !vl.IsNil() {
-					if RetryCount != -1 {
+					if retryCount != -1 {
 						retryC++
-						if retryC <= RetryCount {
+						if retryC <= retryCount {
 						} else {
 							loop = false
 						}
@@ -80,7 +80,7 @@ func RE(method interface{}, params ...interface{}) interface{} {
 			}
 		}
 		if loop {
-			time.Sleep(DelayDuration)
+			time.Sleep(delayDuration)
 		} else {
 			return retV
 		}
