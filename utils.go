@@ -35,6 +35,16 @@ func Float64Round(x float64, prec ...int) float64 {
 	return y
 }
 
+func Float64RoundString(x float64, prec ...int) string {
+	precision := 4
+	if len(prec) == 1 {
+		precision = prec[0]
+	}
+	format := "%." + strconv.Itoa(precision) + "f"
+	s := fmt.Sprintf(format, x)
+	return s
+}
+
 func SetRetryCount(count int) {
 	retryCount = count
 }
