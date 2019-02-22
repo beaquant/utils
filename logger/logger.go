@@ -16,7 +16,7 @@ const (
 )
 
 var (
-	log             *logrus.Logger
+	//log             *logrus.Logger
 	fileHooksLocker = sync.Mutex{}
 
 	//json   = jsoniter.ConfigCompatibleWithStandardLibrary
@@ -35,16 +35,16 @@ var AllLevels = []logrus.Level{
 func init() {
 }
 
-func NewLogger() *logrus.Logger {
-	if log == nil {
-		log = &logrus.Logger{
+func NewLogger(name string) *logrus.Logger {
+	//if log == nil {
+		log := &logrus.Logger{
 			Out:       os.Stdout,
 			Formatter: &logrus.TextFormatter{ForceColors: true, TimestampFormat: SimpleDateTimeFormat, FullTimestamp: true},
 			Hooks:     make(logrus.LevelHooks),
 			// Minimum level to log at (5 is most verbose (debug), 0 is panic)
 			Level: logrus.DebugLevel,
 		}
-		fileHook, err := NewLogrusFileHook("log.txt", os.O_CREATE|os.O_APPEND|os.O_RDWR, 0666, logrus.DebugLevel)
+		fileHook, err := NewLogrusFileHook(name, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0666, logrus.DebugLevel)
 		if err == nil {
 			log.Hooks.Add(fileHook)
 		}
@@ -53,7 +53,7 @@ func NewLogger() *logrus.Logger {
 		//if err == nil {
 		//	log.Hooks.Add(wxHook)
 		//}
-	}
+	//}
 	return log
 }
 
