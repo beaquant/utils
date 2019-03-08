@@ -51,11 +51,18 @@ func (push *WxPush) sendWxQ() {
 		path = fmt.Sprintf(push.url+"sub?%s", params.Encode())
 	}
 	//fmt.Println("send wx:", url)
+	retry := 10
 	for {
 		_, err := httpGet(http.DefaultClient, path)
 
 		if err != nil {
 			time.Sleep(1 * time.Second)
+			if retry > 0 {
+				retry--
+			} else {
+				fmt.Println("wx send fail...", err)
+				break
+			}
 		} else {
 			break
 		}
