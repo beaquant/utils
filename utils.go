@@ -7,11 +7,6 @@ import (
 	"time"
 )
 
-var (
-	delayDuration = time.Duration(3 * time.Second)
-	retryCount    = -1
-)
-
 func Round8(x float64) float64 {
 	s := fmt.Sprintf("%.8f", x)
 	y, _ := strconv.ParseFloat(s, 64)
@@ -45,14 +40,24 @@ func Float64RoundString(x float64, prec ...int) string {
 	return s
 }
 
-func SetRetryCount(count int) {
-	retryCount = count
+type RE struct {
+	delayDuration time.Duration
+	retryCount    int
 }
 
-func SetDelay(delay int) {
-	delayDuration = time.Duration(time.Duration(delay) * time.Millisecond)
+func NewRE() *RE {
+	return &RE{delayDuration: time.Duration(3 * time.Second), retryCount: -1}
 }
-func RE(method interface{}, params ...interface{}) interface{} {
+
+func (r *RE) SetRetryCount(count int) {
+	r.retryCount = count
+}
+
+func (r *RE) SetDelay(delay int) {
+	r.delayDuration = time.Duration(time.Duration(delay) * time.Millisecond)
+}
+
+func (r *RE) RE(method interface{}, params ...interface{}) interface{} {
 
 	invokeM := reflect.ValueOf(method)
 	if invokeM.Kind() != reflect.Func {
@@ -75,9 +80,9 @@ func RE(method interface{}, params ...interface{}) interface{} {
 		for _, vl := range retValues {
 			if vl.Type().String() == "error" {
 				if !vl.IsNil() {
-					if retryCount != -1 {
+					if r.retryCount != -1 {
 						retryC++
-						if retryC <= retryCount {
+						if retryC <= r.retryCount {
 						} else {
 							loop = false
 						}
@@ -90,7 +95,7 @@ func RE(method interface{}, params ...interface{}) interface{} {
 			}
 		}
 		if loop {
-			time.Sleep(delayDuration)
+			time.Sleep(r.delayDuration)
 		} else {
 			return retV
 		}
