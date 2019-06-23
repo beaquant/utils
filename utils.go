@@ -40,6 +40,15 @@ func Float64RoundString(x float64, prec ...int) string {
 	return s
 }
 
+func Float64ToString(f float64) string {
+	return fmt.Sprint(f)
+}
+
+func StringToFloat64(s string) float64 {
+	y, _ := strconv.ParseFloat(s, 64)
+	return y
+}
+
 type RE struct {
 	delayDuration time.Duration
 	retryCount    int
