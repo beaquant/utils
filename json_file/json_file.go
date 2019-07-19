@@ -6,6 +6,7 @@ import (
 	"github.com/json-iterator/go"
 	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
 	"reflect"
 	"runtime"
@@ -39,22 +40,6 @@ func (jf *JsonFile) readFile(path string) ([]byte, error) {
 	return file, nil
 }
 
-func (jf *JsonFile) Read(configPath string, result interface{}) error {
-	file, err := jf.readFile(configPath)
-	if err != nil {
-		fmt.Errorf("common.ReadFile:%s", err)
-		return err
-	}
-
-	err = jf.confirmConfigJSON(file, result)
-	if err != nil {
-		fmt.Errorf("confirmConfigJSON:%s", err)
-		return err
-	}
-
-	return nil
-}
-
 func (jf *JsonFile) confirmConfigJSON(file []byte, result interface{}) error {
 	if !strings.Contains(reflect.TypeOf(result).String(), "*") {
 		return errors.New(errNotAPointer)
@@ -82,4 +67,44 @@ func (jf *JsonFile) GetOSPathSlash() string {
 		return "\\"
 	}
 	return "/"
+}
+
+func (jf *JsonFile) Load(configPath string, result interface{}) error {
+	file, err := jf.readFile(configPath)
+	if err != nil {
+		fmt.Errorf("common.ReadFile err:%s", err)
+		return err
+	}
+
+	err = jf.confirmConfigJSON(file, result)
+	if err != nil {
+		fmt.Errorf("confirmConfigJSON:%s", err)
+		return err
+	}
+
+	return nil
+}
+
+func (jf *JsonFile) Save(configPath string, cfg interface{}) error {
+	data, err := json.MarshalIndent(cfg, "", "    ") //这里返回的data值，类型是[]byte
+	if err != nil {
+		fmt.Errorf("common.SaveFile err:%s", err)
+		return err
+	}
+	_, err = writeBytes(configPath, data)
+	if err != nil {
+		fmt.Errorf("confirmConfigJSON:%s", err)
+		return err
+	}
+	return nil
+}
+
+func writeBytes(filePath string, b []byte) (int, error) {
+	os.MkdirAll(path.Dir(filePath), os.ModePerm)
+	fw, err := os.Create(filePath)
+	if err != nil {
+		return 0, err
+	}
+	defer fw.Close()
+	return fw.Write(b)
 }

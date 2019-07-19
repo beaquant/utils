@@ -7,9 +7,16 @@ type C1 struct {
 	Data   []interface{} `json:"data"`
 }
 
-func TestConfig_Read(t *testing.T) {
+func TestJsonFile_Load(t *testing.T) {
 	c := &C1{}
 	jf := &JsonFile{}
-	t.Log(jf.Read("json_file.json", c))
+	t.Log(jf.Load("json_file.json", c))
 	t.Log(c)
+}
+
+func TestJsonFile_Save(t *testing.T) {
+	c := &C1{}
+	jf := &JsonFile{}
+	jf.Load("json_file.json", c)
+	t.Log(jf.Save("json_file_save.json", c))
 }
