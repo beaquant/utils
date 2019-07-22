@@ -29,10 +29,7 @@ var (
 	json = jsoniter.ConfigCompatibleWithStandardLibrary
 )
 
-type JsonFile struct {
-}
-
-func (jf *JsonFile) readFile(path string) ([]byte, error) {
+func readFile(path string) ([]byte, error) {
 	file, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -40,21 +37,21 @@ func (jf *JsonFile) readFile(path string) ([]byte, error) {
 	return file, nil
 }
 
-func (jf *JsonFile) confirmConfigJSON(file []byte, result interface{}) error {
+func confirmConfigJSON(file []byte, result interface{}) error {
 	if !strings.Contains(reflect.TypeOf(result).String(), "*") {
 		return errors.New(errNotAPointer)
 	}
-	return jf.jsonDecode(file, &result)
+	return jsonDecode(file, &result)
 }
 
-func (jf *JsonFile) jsonDecode(data []byte, to interface{}) error {
+func jsonDecode(data []byte, to interface{}) error {
 	if !strings.Contains(reflect.ValueOf(to).Type().String(), "*") {
 		return errors.New("json decode error - memory address not supplied")
 	}
 	return json.Unmarshal(data, to)
 }
 
-func (jf *JsonFile) GetExecutablePath() (string, error) {
+func GetExecutablePath() (string, error) {
 	ex, err := os.Executable()
 	if err != nil {
 		return "", err
@@ -62,21 +59,21 @@ func (jf *JsonFile) GetExecutablePath() (string, error) {
 	return filepath.Dir(ex), nil
 }
 
-func (jf *JsonFile) GetOSPathSlash() string {
+func GetOSPathSlash() string {
 	if runtime.GOOS == "windows" {
 		return "\\"
 	}
 	return "/"
 }
 
-func (jf *JsonFile) Load(configPath string, result interface{}) error {
-	file, err := jf.readFile(configPath)
+func Load(configPath string, result interface{}) error {
+	file, err := readFile(configPath)
 	if err != nil {
 		fmt.Errorf("common.ReadFile err:%s", err)
 		return err
 	}
 
-	err = jf.confirmConfigJSON(file, result)
+	err = confirmConfigJSON(file, result)
 	if err != nil {
 		fmt.Errorf("confirmConfigJSON:%s", err)
 		return err
@@ -85,7 +82,7 @@ func (jf *JsonFile) Load(configPath string, result interface{}) error {
 	return nil
 }
 
-func (jf *JsonFile) Save(configPath string, cfg interface{}) error {
+func Save(configPath string, cfg interface{}) error {
 	data, err := json.MarshalIndent(cfg, "", "    ") //这里返回的data值，类型是[]byte
 	if err != nil {
 		fmt.Errorf("common.SaveFile err:%s", err)
