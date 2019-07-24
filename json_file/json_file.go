@@ -14,15 +14,7 @@ import (
 )
 
 const (
-	EncryptedConfigFile          = "json_file.dat"
-	ArbitrerConfigFile           = "arbitrer_config.json"
-	ExchangeConfigFile           = "exchange_config.json"
-	ConfigTestFile               = "example_config.json"
-	configFileEncryptionPrompt   = 0
-	configFileEncryptionEnabled  = 1
-	configFileEncryptionDisabled = -1
-	ErrFailureOpeningConfig      = "Fatal error opening %s file. Error: %s"
-	errNotAPointer               = "Error: parameter interface is not a pointer"
+	errNotAPointer = "Error: parameter interface is not a pointer"
 )
 
 var (
