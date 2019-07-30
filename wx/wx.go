@@ -19,6 +19,10 @@ type WxPush struct {
 	msgLock sync.RWMutex
 }
 
+const (
+	FANGTANG_URL = "https://sc.ftqq.com/"
+)
+
 func NewWxPush(url, key string) *WxPush {
 	if !strings.HasSuffix(url, "/") {
 		url += "/"
