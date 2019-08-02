@@ -21,6 +21,7 @@ type WxPush struct {
 
 const (
 	FANGTANG_URL = "https://sc.ftqq.com/"
+	PUSHBEAR_URL = "https://pushbear.ftqq.com/"
 )
 
 func NewWxPush(url, key string) *WxPush {
@@ -90,10 +91,11 @@ func (push *WxPush) sendWxWorker() {
 	}
 }
 
-func (push *WxPush) sendWx(subject string, args ...interface{}) {
-	body := fmt.Sprint(args)
-	push.wxMsgQPush(subject, body)
-}
+//
+//func (push *WxPush) sendWx(subject string, args ...interface{}) {
+//	body := fmt.Sprint(args)
+//	push.wxMsgQPush(subject, body)
+//}
 
 func (push *WxPush) SendWxString(subject, body string) {
 	push.wxMsgQPush(subject, body)
