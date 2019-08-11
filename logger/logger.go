@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	SimpleDateTimeFormat = "2006-01-02 15:04:05:000"
+	SimpleDateTimeFormat = "2006-01-02 15:04:05.000"
 	SimpleDateFormat     = "2006-01-02"
 )
 
