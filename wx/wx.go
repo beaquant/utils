@@ -19,6 +19,11 @@ type WxPush struct {
 	msgLock sync.RWMutex
 }
 
+const (
+	FANGTANG_URL = "https://sc.ftqq.com/"
+	PUSHBEAR_URL = "https://pushbear.ftqq.com/"
+)
+
 func NewWxPush(url, key string) *WxPush {
 	if !strings.HasSuffix(url, "/") {
 		url += "/"
@@ -86,10 +91,11 @@ func (push *WxPush) sendWxWorker() {
 	}
 }
 
-func (push *WxPush) sendWx(subject string, args ...interface{}) {
-	body := fmt.Sprint(args)
-	push.wxMsgQPush(subject, body)
-}
+//
+//func (push *WxPush) sendWx(subject string, args ...interface{}) {
+//	body := fmt.Sprint(args)
+//	push.wxMsgQPush(subject, body)
+//}
 
 func (push *WxPush) SendWxString(subject, body string) {
 	push.wxMsgQPush(subject, body)
