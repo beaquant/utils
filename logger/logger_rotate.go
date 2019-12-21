@@ -32,13 +32,13 @@ func newRotateIO(writerDir, logFileName string, ageDay uint, rotationDuration ti
 	)
 }
 
-func NewLoggerWithRotate(dir, logFileName string, ageDay uint, rotationDuration time.Duration, exitHandler func()) *logrus.Logger {
+func NewLoggerWithRotate(dir, logFileName string, ageDay uint, rotationDuration time.Duration, formatter *logrus.TextFormatter, exitHandler func()) *logrus.Logger {
 	var Logger = logrus.New()
 	// 设置logrus实例的输出到任意io.writer
 	Logger.Out = os.Stdout
 
 	// 为当前logrus实例设置消息输出格式为text格式。
-	Logger.Formatter = &logrus.TextFormatter{}
+	Logger.Formatter = formatter
 
 	// 设置日志级别
 	Logger.Level = logrus.InfoLevel
@@ -53,7 +53,7 @@ func NewLoggerWithRotate(dir, logFileName string, ageDay uint, rotationDuration 
 }
 
 // 日志本地文件分割的HOOK
-func newLfsHook(dir, logFileName string, ageDay uint, rotationDuration time.Duration) logrus.Hook {
+func newLfsHook(dir, logFileName string, ageDay uint, rotationDuration time.Duration, formatter *logrus.TextFormatter) logrus.Hook {
 	writer, err := newRotateIO(dir, logFileName, ageDay, rotationDuration)
 	if err != nil {
 		logrus.Errorf("config local file system for logger error: %v", err)
@@ -66,7 +66,7 @@ func newLfsHook(dir, logFileName string, ageDay uint, rotationDuration time.Dura
 		logrus.ErrorLevel: writer,
 		logrus.FatalLevel: writer,
 		logrus.PanicLevel: writer,
-	}, &logrus.TextFormatter{})
+	}, formatter)
 
 	return lfsHook
 }
