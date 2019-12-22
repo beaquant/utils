@@ -5,14 +5,9 @@ import (
 	"github.com/lestrrat-go/file-rotatelogs"
 	"github.com/rifflock/lfshook"
 	"github.com/sirupsen/logrus"
-	"io"
 	"os"
 	"time"
 )
-
-type ss struct {
-	t *time.Time
-}
 
 func newRotateIO(writerDir, logFileName string, ageDay uint, rotationDuration time.Duration) (*rotatelogs.RotateLogs, error) {
 	_ = file.IsNotExistMkDir(writerDir)
@@ -64,7 +59,7 @@ func newLfsHook(dir, logFileName string, ageDay uint, rotationDuration time.Dura
 		logrus.Errorf("config local file system for logger error: %v", err)
 	}
 
-	writeMap := make(map[logrus.Level]io.Writer)
+	writeMap := make(lfshook.WriterMap)
 	levels := LevelThreshold(level)
 	for _, v := range levels {
 		writeMap[v] = writer
