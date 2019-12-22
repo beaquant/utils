@@ -5,6 +5,7 @@ import (
 	"github.com/lestrrat-go/file-rotatelogs"
 	"github.com/rifflock/lfshook"
 	"github.com/sirupsen/logrus"
+	"io"
 	"os"
 	"time"
 )
@@ -32,19 +33,23 @@ func newRotateIO(writerDir, logFileName string, ageDay uint, rotationDuration ti
 	)
 }
 
-func NewLoggerWithRotate(dir, logFileName string, ageDay uint, rotationDuration time.Duration, formatter *logrus.TextFormatter, exitHandler func()) *logrus.Logger {
+func NewLoggerWithRotate(dir, logFileName string, ageDay uint, rotationDuration time.Duration, formatter *logrus.TextFormatter, level logrus.Level, exitHandler func()) *logrus.Logger {
 	var Logger = logrus.New()
 	// 设置logrus实例的输出到任意io.writer
 	Logger.Out = os.Stdout
 
 	// 为当前logrus实例设置消息输出格式为text格式。
-	Logger.Formatter = formatter
+	if formatter == nil {
+		Logger.Formatter = &logrus.TextFormatter{}
+	} else {
+		Logger.Formatter = formatter
+	}
 
 	// 设置日志级别
-	Logger.Level = logrus.InfoLevel
+	Logger.Level = level
 
 	// 添加 hook
-	Logger.AddHook(newLfsHook(dir, logFileName, ageDay, rotationDuration))
+	Logger.AddHook(newLfsHook(dir, logFileName, ageDay, rotationDuration, formatter, level))
 
 	// 让logrus在执行os.Exit(1)之前进行相应的处理。fatal handler可以在系统异常时调用一些资源释放api等，让应用正确的关闭。
 	logrus.RegisterExitHandler(exitHandler)
@@ -53,20 +58,18 @@ func NewLoggerWithRotate(dir, logFileName string, ageDay uint, rotationDuration 
 }
 
 // 日志本地文件分割的HOOK
-func newLfsHook(dir, logFileName string, ageDay uint, rotationDuration time.Duration, formatter *logrus.TextFormatter) logrus.Hook {
+func newLfsHook(dir, logFileName string, ageDay uint, rotationDuration time.Duration, formatter *logrus.TextFormatter, level logrus.Level) logrus.Hook {
 	writer, err := newRotateIO(dir, logFileName, ageDay, rotationDuration)
 	if err != nil {
 		logrus.Errorf("config local file system for logger error: %v", err)
 	}
 
-	lfsHook := lfshook.NewHook(lfshook.WriterMap{
-		logrus.DebugLevel: writer,
-		logrus.InfoLevel:  writer,
-		logrus.WarnLevel:  writer,
-		logrus.ErrorLevel: writer,
-		logrus.FatalLevel: writer,
-		logrus.PanicLevel: writer,
-	}, formatter)
+	writeMap := make(map[logrus.Level]io.Writer)
+	levels := LevelThreshold(level)
+	for _, v := range levels {
+		writeMap[v] = writer
+	}
+	lfsHook := lfshook.NewHook(writeMap, formatter)
 
 	return lfsHook
 }
