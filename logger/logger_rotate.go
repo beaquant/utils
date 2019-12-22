@@ -28,7 +28,7 @@ func newRotateIO(writerDir, logFileName string, ageDay uint, rotationDuration ti
 	)
 }
 
-func NewLoggerWithRotate(dir, logFileName string, ageDay uint, rotationDuration time.Duration, formatter *logrus.TextFormatter, level logrus.Level, exitHandler func()) *logrus.Logger {
+func NewLoggerWithRotate(dir, logFileName string, ageDay uint, rotationDuration time.Duration, formatter logrus.Formatter, level logrus.Level, exitHandler func()) *logrus.Logger {
 	var Logger = logrus.New()
 	// 设置logrus实例的输出到任意io.writer
 	Logger.Out = os.Stdout
@@ -53,7 +53,7 @@ func NewLoggerWithRotate(dir, logFileName string, ageDay uint, rotationDuration 
 }
 
 // 日志本地文件分割的HOOK
-func newLfsHook(dir, logFileName string, ageDay uint, rotationDuration time.Duration, formatter *logrus.TextFormatter, level logrus.Level) logrus.Hook {
+func newLfsHook(dir, logFileName string, ageDay uint, rotationDuration time.Duration, formatter logrus.Formatter, level logrus.Level) logrus.Hook {
 	writer, err := newRotateIO(dir, logFileName, ageDay, rotationDuration)
 	if err != nil {
 		logrus.Errorf("config local file system for logger error: %v", err)
