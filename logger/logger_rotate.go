@@ -29,7 +29,13 @@ func newRotateIO(writerDir, logFileName string, ageDay uint, rotationDuration ti
 }
 
 func NewLoggerWithRotate(dir, logFileName string, ageDay uint, rotationDuration time.Duration, formatter logrus.Formatter, level logrus.Level, exitHandler func()) *logrus.Logger {
-	var Logger = logrus.New()
+	var Logger = &logrus.Logger{
+		Out:       os.Stdout,
+		Formatter: formatter,
+		Hooks:     make(logrus.LevelHooks),
+		// Minimum level to log at (5 is most verbose (debug), 0 is panic)
+		Level: level,
+	}
 	// 设置logrus实例的输出到任意io.writer
 	Logger.Out = os.Stdout
 
@@ -44,7 +50,7 @@ func NewLoggerWithRotate(dir, logFileName string, ageDay uint, rotationDuration 
 	Logger.Level = level
 
 	// 添加 hook
-	Logger.AddHook(newLfsHook(dir, logFileName, ageDay, rotationDuration, formatter, level))
+	Logger.Hooks.Add(newLfsHook(dir, logFileName, ageDay, rotationDuration, level))
 
 	// 让logrus在执行os.Exit(1)之前进行相应的处理。fatal handler可以在系统异常时调用一些资源释放api等，让应用正确的关闭。
 	logrus.RegisterExitHandler(exitHandler)
@@ -53,7 +59,7 @@ func NewLoggerWithRotate(dir, logFileName string, ageDay uint, rotationDuration 
 }
 
 // 日志本地文件分割的HOOK
-func newLfsHook(dir, logFileName string, ageDay uint, rotationDuration time.Duration, formatter logrus.Formatter, level logrus.Level) logrus.Hook {
+func newLfsHook(dir, logFileName string, ageDay uint, rotationDuration time.Duration, level logrus.Level) logrus.Hook {
 	writer, err := newRotateIO(dir, logFileName, ageDay, rotationDuration)
 	if err != nil {
 		logrus.Errorf("config local file system for logger error: %v", err)
@@ -64,7 +70,7 @@ func newLfsHook(dir, logFileName string, ageDay uint, rotationDuration time.Dura
 	for _, v := range levels {
 		writeMap[v] = writer
 	}
-	lfsHook := lfshook.NewHook(writeMap, formatter)
+	lfsHook := lfshook.NewHook(writeMap, &logrus.TextFormatter{})
 
 	return lfsHook
 }
