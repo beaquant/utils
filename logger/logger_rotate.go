@@ -70,7 +70,7 @@ func newLfsHook(dir, logFileName string, ageDay uint, rotationDuration time.Dura
 	for _, v := range levels {
 		writeMap[v] = writer
 	}
-	lfsHook := lfshook.NewHook(writeMap, &logrus.TextFormatter{})
+	lfsHook := lfshook.NewHook(writeMap, &logrus.TextFormatter{TimestampFormat: SimpleDateTimeFormat, FullTimestamp: true})
 
 	return lfsHook
 }
