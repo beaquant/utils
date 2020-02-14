@@ -2,9 +2,14 @@ package utils
 
 import (
 	"fmt"
+	"math"
 	"reflect"
 	"strconv"
 	"time"
+)
+
+var (
+	defaultPrecision = 4
 )
 
 func ToFloat64(v interface{}) float64 {
@@ -86,8 +91,18 @@ func ToInt64(v interface{}) int64 {
 	}
 }
 
-func Float64Round(x float64, prec ...int) float64 {
-	precision := 4
+func Float64Round2(x float64, prec ...int) float64 {
+	precision := defaultPrecision
+	if len(prec) == 1 {
+		precision = prec[0]
+	}
+	s := Float64RoundString(x, precision)
+	y, _ := strconv.ParseFloat(s, 64)
+	return y
+}
+
+func Float64Round3(x float64, prec ...int) float64 {
+	precision := defaultPrecision
 	if len(prec) == 1 {
 		precision = prec[0]
 	}
@@ -97,8 +112,26 @@ func Float64Round(x float64, prec ...int) float64 {
 	return y
 }
 
+func Float64Round(f float64, prec ...int) float64 {
+	precision := defaultPrecision
+	if len(prec) == 1 {
+		precision = prec[0]
+	}
+	x := math.Pow10(precision)
+	return math.Trunc(f*x) / x
+}
+
 func Float64RoundString(x float64, prec ...int) string {
-	precision := 4
+	precision := defaultPrecision
+	if len(prec) == 1 {
+		precision = prec[0]
+	}
+	s := strconv.FormatFloat(x, 'f', precision, 64)
+	return s
+}
+
+func Float64RoundString2(x float64, prec ...int) string {
+	precision := defaultPrecision
 	if len(prec) == 1 {
 		precision = prec[0]
 	}
@@ -108,6 +141,10 @@ func Float64RoundString(x float64, prec ...int) string {
 }
 
 func Float64ToString(f float64) string {
+	return strconv.FormatFloat(f, 'f', -1, 64)
+}
+
+func Float64ToString2(f float64) string {
 	return fmt.Sprint(f)
 }
 
