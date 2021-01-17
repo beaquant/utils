@@ -128,8 +128,12 @@ func Float64RoundString(x float64, prec ...int) string {
 		precision = prec[0]
 	}
 	s := strconv.FormatFloat(x, 'f', precision, 64)
+	ss := strings.Split(s, ".")
+	if len(ss) == 1 {
+		return s
+	}
 
-	return strings.TrimRight(s, "0")
+	return s + "." + strings.TrimRight(ss[1], "0")
 }
 
 func Float64RoundString2(x float64, prec ...int) string {
@@ -139,7 +143,12 @@ func Float64RoundString2(x float64, prec ...int) string {
 	}
 	format := "%." + strconv.Itoa(precision) + "f"
 	s := fmt.Sprintf(format, x)
-	return strings.TrimRight(s, "0")
+	ss := strings.Split(s, ".")
+	if len(ss) == 1 {
+		return s
+	}
+
+	return s + "." + strings.TrimRight(ss[1], "0")
 }
 
 func Float64ToString(f float64) string {
