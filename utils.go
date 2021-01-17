@@ -133,7 +133,11 @@ func Float64RoundString(x float64, prec ...int) string {
 		return s
 	}
 
-	return s + "." + strings.TrimRight(ss[1], "0")
+	s2 := strings.TrimRight(ss[1], "0")
+	if s2 == "" {
+		return ss[0]
+	}
+	return ss[0] + "." + s2
 }
 
 func Float64RoundString2(x float64, prec ...int) string {
@@ -147,8 +151,11 @@ func Float64RoundString2(x float64, prec ...int) string {
 	if len(ss) == 1 {
 		return s
 	}
-
-	return s + "." + strings.TrimRight(ss[1], "0")
+	s2 := strings.TrimRight(ss[1], "0")
+	if s2 == "" {
+		return ss[0]
+	}
+	return ss[0] + "." + s2
 }
 
 func Float64ToString(f float64) string {
