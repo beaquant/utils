@@ -140,6 +140,15 @@ func Float64RoundString(x float64, prec ...int) string {
 	return ss[0] + "." + s2
 }
 
+func FloatToString(v float64, precision int) string {
+	return fmt.Sprint(FloatToFixed(v, precision))
+}
+
+func FloatToFixed(v float64, precision int) float64 {
+	p := math.Pow(10, float64(precision))
+	return math.Round(v*p) / p
+}
+
 func Float64RoundString2(x float64, prec ...int) string {
 	precision := defaultPrecision
 	if len(prec) == 1 {
@@ -151,6 +160,29 @@ func Float64RoundString2(x float64, prec ...int) string {
 	if len(ss) == 1 {
 		return s
 	}
+	s2 := strings.TrimRight(ss[1], "0")
+	if s2 == "" {
+		return ss[0]
+	}
+	return ss[0] + "." + s2
+}
+
+func Float64RoundString3(x float64, prec ...int) string {
+	precision := defaultPrecision
+	if len(prec) == 1 {
+		precision = prec[0]
+	}
+
+	s := strconv.FormatFloat(x, 'f', -1, 64)
+
+	ss := strings.Split(s, ".")
+	if len(ss) == 1 {
+		return s
+	}
+	if precision > len(ss[1]) {
+		precision = len(ss[1])
+	}
+	ss[1] = ss[1][:precision]
 	s2 := strings.TrimRight(ss[1], "0")
 	if s2 == "" {
 		return ss[0]

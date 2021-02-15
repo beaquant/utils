@@ -16,6 +16,21 @@ func TestFloat64RoundString2(t *testing.T) {
 	t.Log(Float64RoundString2(0.12))
 }
 
+func TestFloat64RoundString3(t *testing.T) {
+	t.Log(Float64RoundString3(0.123456789))
+	t.Log(Float64RoundString3(0.12))
+}
+
+func TestFloatToString(t *testing.T) {
+	t.Log(FloatToString(0.123456789, 4))
+	t.Log(FloatToString(0.12, 4))
+}
+
+func TestFloat64ToString(t *testing.T) {
+	t.Log(Float64ToString(0.123456789))
+	t.Log(Float64ToString(0.12))
+}
+
 func TestFloat64Round(t *testing.T) {
 	t.Log(Float64Round(0.123456789, 8))
 }
